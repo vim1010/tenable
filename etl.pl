@@ -43,21 +43,58 @@ sub get_scans {
   say encode_json($d);
 }
 
+sub get_scan_results {
+  my ($code, $d) = http_request('GET', "/scanResult");
+  say encode_json($d);
+} 
+
 sub get_scan_result {
   my $id = shift;
   my ($code, $d) = http_request('GET', "/scanResult/$id");
   say encode_json($d);
-} 
+}
+
+sub get_device_info {
+  my $ip = shift;
+  my ($code, $d) = http_request('GET', "/deviceInfo", {query => {ip => $ip}});
+  say encode_json($d);
+}
+
+sub get_analysis {
+  my $scan_id = shift;
+  my $h = {
+    type => 'vuln',
+    query => {id => 99999},
+    sortDir => 'DESC',
+    startOffset => 0,
+    endOffset => 1000,
+    sourceType => 'cumulative',
+    tool => 'vulnipdetail',
+    scanID => $scan_id,
+    view => 'all'
+  };
+  my ($code, $d) = http_request('POST', "/analysis", {data => $h});
+  say encode_json($d);
+}
 
 sub main {
   my $arg = shift @ARGV;
   GetOptions(
-    'id=i' => \my $id
+    'id=i' => \my $id,
+    'ip=s' => \my $ip,
+    'scan-id=s' => \my $scan_id
   );
+  say $scan_id;
   if ($arg =~ /^scans$/) {
     get_scans;
-  } elsif ($arg =~ /^scan$/) { 
+  } elsif ($arg =~ /^results$/) {
+    get_scan_results;
+  } elsif ($arg =~ /^result$/) {
     get_scan_result($id);
+  } elsif ($arg =~ /^device-info$/) {
+    get_device_info($ip);
+  } elsif ($arg =~ /^analysis$/) {
+    get_analysis($scan_id);
   } else {
     say "bad arg: $arg";
   }
