@@ -85,7 +85,6 @@ sub main {
     'ip=s' => \my $ip,
     'scan-id=s' => \my $scan_id
   );
-  say $scan_id;
   if ($arg =~ /^scans$/) {
     get_scans;
   } elsif ($arg =~ /^results$/) {
