@@ -61,7 +61,7 @@ sub get_device_info {
 }
 
 sub get_analysis {
-  my $scan_id = shift;
+  my %params = @_;
   my $h = {
     query => {
       tool => 'vulnipsummary',
@@ -71,8 +71,7 @@ sub get_analysis {
       filters => []
     },
     type => 'vuln',
-    scanID => 38,
-    sourceType => 'patched'
+    sourceType => $params{source_type} || 'cumulative'  # cumulative or patched
   };
   my ($code, $d) = http_request('POST', "/analysis", {data => $h});
   say encode_json($d);
@@ -83,7 +82,8 @@ sub main {
   GetOptions(
     'id=i' => \my $id,
     'ip=s' => \my $ip,
-    'scan-id=s' => \my $scan_id
+    'scan-id=s' => \my $scan_id,
+    'source-type=s' => \my $source_type
   );
   if ($arg =~ /^scans$/) {
     get_scans;
@@ -94,7 +94,7 @@ sub main {
   } elsif ($arg =~ /^device-info$/) {
     get_device_info($ip);
   } elsif ($arg =~ /^analysis$/) {
-    get_analysis($scan_id);
+    get_analysis(source_type => $source_type);
   } else {
     say "bad arg: $arg";
   }
