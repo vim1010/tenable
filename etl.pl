@@ -9,7 +9,7 @@ use URI;
 use v5.32;
 
 my $ua = LWP::UserAgent->new();
-my $tsc_base_url = $ENV{TSC_BASE_URL};
+my $tsc_url = $ENV{TSC_URL};
 my $tsc_key = $ENV{TSC_KEY};
 my $tsc_secret = $ENV{TSC_SECRET};
 
@@ -21,7 +21,7 @@ sub log_and_croak {
 
 sub http_request {
   my ($method, $route, $d) = @_;
-  my $url = URI->new("$tsc_base_url/rest/$route");
+  my $url = URI->new("$tsc_url/rest/$route");
   if ($d->{query}) {
     $url->query_form(%{$d->{query}});
   }
@@ -63,15 +63,16 @@ sub get_device_info {
 sub get_analysis {
   my $scan_id = shift;
   my $h = {
+    query => {
+      tool => 'vulnipsummary',
+      endOffset => 1000,
+      startOffset => 0,
+      type => 'vuln',
+      filters => []
+    },
     type => 'vuln',
-    query => {id => 99999},
-    sortDir => 'DESC',
-    startOffset => 0,
-    endOffset => 1000,
-    sourceType => 'cumulative',
-    tool => 'vulnipdetail',
-    scanID => $scan_id,
-    view => 'all'
+    scanID => 38,
+    sourceType => 'patched'
   };
   my ($code, $d) = http_request('POST', "/analysis", {data => $h});
   say encode_json($d);
