@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./gotsc --source-type=patched | jq '
+./gotsc --source-type=cumulative | jq '
   .response.results[] | {
     name: .name,
     id: .pluginID,
