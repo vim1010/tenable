@@ -25,6 +25,22 @@ func getHosts() (map[string]string, error) {
 	return hosts, err
 }
 
+func getVulns() ([]byte, error) {
+	opts := map[string]any{
+		"query": map[string]any{
+			"tool":        "vulnipsummary",
+			"endOffset":   1000,
+			"startOffset": 0,
+			"type":        "vuln",
+			"filters":     []any{},
+		},
+		"type":       "vuln",
+		"sourceType": "patched",
+	}
+	d, err := tsc.Post("/analysis", opts, nil)
+	return d, err
+}
+
 func main() {
 	rexURL := os.Getenv("REX_BASE_URL")
 	rexUser := os.Getenv("REX_USER")
@@ -52,20 +68,6 @@ func main() {
 		tscKey,
 		tscSecret,
 	)
-	opts := map[string]any{
-		"query": map[string]any{
-			"tool":        "vulnipsummary",
-			"endOffset":   1000,
-			"startOffset": 0,
-			"type":        "vuln",
-			"filters":     []any{},
-		},
-		"type":       "vuln",
-		"sourceType": "patched",
-	}
-	d, err := tsc.Post("/analysis", opts, nil)
-	if err != nil {
-		fmt.Println(err)
-	}
+	d, err := getVulns()
 	fmt.Println(string(d))
 }
