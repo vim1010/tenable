@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 )
@@ -25,7 +26,7 @@ func getHosts() (map[string]string, error) {
 	return hosts, err
 }
 
-func getVulns() ([]byte, error) {
+func getVulns(sourceType string) ([]byte, error) {
 	opts := map[string]any{
 		"query": map[string]any{
 			"tool":        "vulnipsummary",
@@ -35,13 +36,19 @@ func getVulns() ([]byte, error) {
 			"filters":     []any{},
 		},
 		"type":       "vuln",
-		"sourceType": "patched",
+		"sourceType": sourceType,
 	}
 	d, err := tsc.Post("/analysis", opts, nil)
 	return d, err
 }
 
 func main() {
+	var st string
+	flag.StringVar(&st, "source-type", "", "source type: cumulative or patched")
+	flag.Parse()
+	if st == "" {
+		st = "patched"
+	}
 	rexURL := os.Getenv("REX_BASE_URL")
 	rexUser := os.Getenv("REX_USER")
 	rexPass := os.Getenv("REX_PASS")
@@ -68,6 +75,6 @@ func main() {
 		tscKey,
 		tscSecret,
 	)
-	d, err := getVulns()
+	d, err := getVulns(st)
 	fmt.Println(string(d))
 }
