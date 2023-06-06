@@ -80,13 +80,18 @@ func parseVulns(data []byte) []Vuln {
 	return vulns
 }
 
-func tagHosts(hosts []string, key, value string) (map[string]any, error) {
-	res, err := model.First("upsert_host_tag", map[string]any{
-		"host_id":        hosts[0],
-		"project_id":     projectID,
-		"host_tag_key":   key,
-		"host_tag_value": value,
-	})
+func tagHosts(hosts []string, key, value string) (res map[string]any, err error) {
+	for _, host := range hosts {
+		res, err = model.First("upsert_host_tag", map[string]any{
+			"host_id":        host,
+			"project_id":     projectID,
+			"host_tag_key":   key,
+			"host_tag_value": value,
+		})
+		if err != nil {
+			return res, err
+		}
+	}
 	return res, err
 }
 
