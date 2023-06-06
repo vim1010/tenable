@@ -131,8 +131,6 @@ func main() {
 	d, err := getVulns(st)
 	vulns := parseVulns(d)
 	for _, vuln := range vulns {
-		k := fmt.Sprintf("vuln:%d:name", vuln.PluginID)
-		v := vuln.Name
 		ids := make([]string, 0)
 		for _, ip := range vuln.IPs {
 			id, ok := h[ip]
@@ -144,7 +142,13 @@ func main() {
 		if len(ids) == 0 {
 			continue
 		}
-		_, err := tagHosts(ids, k, v)
+		k := fmt.Sprintf("vuln:%d:name", vuln.PluginID)
+		_, err := tagHosts(ids, k, vuln.Name)
+		if err != nil {
+			panic(err)
+		}
+		k = fmt.Sprintf("vuln:%d:severity", vuln.PluginID)
+		_, err = tagHosts(ids, k, vuln.Severity)
 		if err != nil {
 			panic(err)
 		}
